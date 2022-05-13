@@ -48,7 +48,7 @@ sub define_spec {
          spec => "type=s",
       },
       {
-         desc => "Where to find cheats and notes (colon separated list)",
+         desc => "Colon separated path",
          spec => "cheat_dirs=s",
       },
       {
