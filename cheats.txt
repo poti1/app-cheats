@@ -2384,7 +2384,1877 @@ sdiff file1 file2
 # Apply a patch file (-p1 ignore first later)
 patch -p1 < ../test.patch
 
-# Fix: "sh: -c: line 0: syntax error near unexpected token ` debug="$OPTARG";;
+# Fix: "sh: -c: line 0: syntax error near unexpected token `('"
+system qq(/bin/bash -c "diff -u <(echo a) <(echo b)");
+system qq(/bin/bash -c "diff -u <(echo \\"a a2 a3\\") <(echo \\"b b2 b3\\")");
+
+
+#############################################################
+## Linux Commands - dos2unix
+#############################################################
+
+# Fix files endings of all files in folder (recursive)
+find . -type f -print0 | xargs -0 dos2unix
+
+# Convert newlines to unix format (trim off carriage returns, like dos2unix)
+perl -lpe 'BEGIN{$n=chr 13; $r=qr/$n$/} s/$r//'
+
+
+#############################################################
+## Linux Commands - dpkg
+#############################################################
+
+# Print dpkg architecture (DES,machine)
+# When installing packages.
+dpkg --print-architecture
+
+# Print allowed foreign architectures (DES,machine)
+# When installing packages.
+dpkg --print-foreign-architectures
+
+# Error - Could not get lock /var/lib/dpkg/lock (admin)
+sudo kill -9 $(sudo lsof | grep /var/lib/dpkg/lock | awk '{print $2}')
+sudo dpkg --configure -a
+
+# dpkg: error: dpkg status database is locked by another process (DES,bench)
+sudo rm -f /var/lib/dpkg/lock
+
+# Install a package from a file
+sudo dpkg -i my.deb
+
+# View packages installed on the system
+dpkg -l
+
+# Check if a package is installed on a system
+dpkg -l | grep kate
+
+# Check installion location of a package
+dpkg -L <package>
+
+# Add architecture to the list of architectures for which (DES)
+# packages can be installed without using --force-architecture
+dpkg --add-architecture i386
+
+# Check if a package is on hold (no updates)
+dpkg --get-selections apksigner
+apt-mark showhold
+
+
+#############################################################
+## Linux Commands - dmesg
+#############################################################
+
+# View kernel messages
+dmesg
+
+
+#############################################################
+## Linux Commands - du
+#############################################################
+
+# Get top 20 people using too much disk space
+du -ms /* | sort -nr | head -n 20
+
+# Find how much space each locked user is using
+a=`sudo passwd -Sa | AND -r "\bL$" | get_nth 0 | while read u; do ls -d1 /net/home*/$u; done 2>/dev/null | col_2_row`
+b=`sudo du -scm `echo $a` | sort -nr`
+echo "$b" | perl -ple '($u)=m{/([^/]+)$} or ($_=sprintf "%-30s %s", $_,"Password Status (L - Locked)") and next; ($s)=(split " ",`sudo passwd -S $u`)[-1]; chomp $s; $_ = sprintf "%-30s %s", $_, $s'
+
+# Find how much space each locked user is using (compact)
+sudo passwd -Sa | AND "\bL$" | perl -aple '$d=qx{sudo du -sm /net/home*/$F[0]}; $d = $? ? "NO HOME DIR" : (chomp $d,$d); $_ = "$d - $_"'
+
+
+#############################################################
+## Linux Commands - eval
+#############################################################
+
+# Variable name is stored in another variable
+n1=abc
+abc=blue
+abc2=green
+eval var=\$$n1
+echo $var
+n1=abc2
+eval var=\$$n1
+echo $var
+
+# Expand $HOME variable (dollar,bash)
+file='$HOME/my_path'
+"`eval echo $file`"
+
+# Expand uicfg $HOME variables
+cat $HOME/uicfg | while read line; do echo `eval echo $line`; done
+
+
+#############################################################
+## Linux Commands - expect
+#############################################################
+
+# Run a command where user input is required (script,auto,password)
+expect -c 'spawn ssh SOME_USER@irkdes "date"; expect "password:"; send "asdf1234\r"; interact'
+
+# Expect quirks (scipt,auto,password)
+# This will NOT work
+echo "SOME_USER" | while read n; do expect ... ; done
+# This DOES work
+for n in "SOME_USER"; do expect ... ; done
+
+# Suppress output (scipt,auto,password)
+# Some output
+expect -c 'spawn -noecho ... '
+# All output
+expect -c 'log_user 0; spawn ... '     # Restore with "log_user 1"
+
+
+#############################################################
+## Linux Commands - find
+#############################################################
+
+# Find every file where a name is used (starting from pwd location)
+find . * | perl -ne 'print unless /^\./' | perl -lne 'print if -f' | xargs perl -lne 'print $ARGV if /start.txt/'
+
+# Find all files but do not look in certain directories
+find $source -not \( -path '*.svn' -prune -or -path '*.git' -prune \) > $all_files
+
+# Find specific files but return directories
+find . -name "*.h" -printf '%h\n'
+find . -name "*.h" -exec dirname {} ';'
+find . -name "*.h" -exec dirname {} \;
+
+# Find all git directories from current location
+find . -name .git -type d | xargs -I{}  readlink -f {} | perl -ple 's#^/\w+##; s#/\.git$##'
+
+# Find all files owned by a certain user
+sudo find . -user xbe4092
+sudo find . -maxdepth 3 -user xbe4092
+
+# Find all files which are more than 100 days old (since they were accessed)
+find $DIR -name "*.txt*" -atime +100
+ll `find $DIR -name "*.txt*" -atime +100`
+
+# Find all files which are more than 100 days old and deletes them
+sudo find $DIR -name "*.txt*" -atime +100 -delete
+
+# Search for multiple files patterns
+find $DIR -name "*.glo*" -o -name "*name*"
+
+# Find all files in current location
+# but do not go into certain folders (omit, exclude)
+find . -not \( -path '*.svn' -prune \)
+
+# Find and perform an action (1,semicolon)
+find $DIR -exec echo Arg: {} ';'
+
+# Find and perform an action (2,plus)
+find $DIR -exec echo Arg: {} '+'
+
+# Find all empty folders (directory)
+find . -type d -empty
+
+# Delete all files using "find"
+find dir/ -exec rm -f{} +								# real    0m7.810s	0m26.089s	0m28.655s
+find dir/ -delete										# real    0m27.124s	0m40.121s
+find dir -type f -print0 | xargs -0 -P13 -n100000 rm	# real	  38m5.886s
+
+# Find all the hard links to a file (path)
+find . -samefile otrs/.vimrc
+
+
+#############################################################
+## Linux Commands - fuser
+#############################################################
+
+# Find which process has a file open
+fuser - identify processes using files or sockets
+
+
+#############################################################
+## Linux Commands - getconf
+#############################################################
+
+# Show/See/Displays all configuration variables
+getconf -a
+
+
+#############################################################
+## Linux Commands - grep
+#############################################################
+
+# Find what is setting the sticky bit to /tmp folder upon machine reboot
+grep -r chmod /etc/* 2>/dev/null | NOT "chmod (?:0?(?:-[f]\s+)?\d{3}|[aguo]*[+-][rwxs]+)\b" '^Binary' | add_color chmod
+grep -r '/tmp' /etc/* 2>/dev/null | NOT '^Binary' | add_color tmp
+
+# Return matching file name only
+grep --color "trace config off"  * -l
+
+# Return nonmatching file name only
+grep --color "trace config off"  * -L
+
+# Find what is common in both files (difference)
+fgrep -Ff a b
+grep -f a b
+perl -e '@s{`cat a`}=(); exists $s{$_} and print for `cat b`'
+
+# Find what is in second but not in first file (difference)
+fgrep -v -Ff a b
+grep -vf a b
+perl -e '@s{`cat a`}=(); exists $s{$_} or print for `cat b`'
+
+# Using grep for a OR like selection
+cat file | grep -e this -e that -e those
+
+# Change grep --color
+export GREP_COLOR="32"              # green
+echo "AabcC" | grep --color abc
+export GREP_COLOR="32;4"            # green, underlined
+echo "AabcC" | grep --color abc
+
+
+#############################################################
+## Linux Commands - groupadd
+#############################################################
+
+# Create new user group
+groupadd
+
+
+#############################################################
+## Linux Commands - gzip
+#############################################################
+
+# Check file size of a gzip ubin file
+# Shows compressed uncompressed  ratio uncompressed_name
+gzip -l my.ubin2.gz
+
+
+#############################################################
+## Linux Commands - history
+#############################################################
+
+# Add more details to history command
+export HISTTIMEFORMAT="%d/%m/%y %T "
+export HISTTIMEFORMAT="%c %Z "
+history | AND SoftBatch mv | NOT AND
+
+# Clear history
+history -c
+
+# View all log in and log out history (need amin)
+sudo vi /var/log/auth.log
+
+
+#############################################################
+## Linux Commands - id
+#############################################################
+
+# Show the user number on the bench (logged in)
+id -u
+
+
+#############################################################
+## Linux Commands - ipcs
+#############################################################
+
+# View the details of a message queue (debug)
+ipcs -q -i 101974057    # Send/receive time for an ID
+ipcs -q -t              # Send/receive time for all
+
+# Find out more info about a shared memory segment
+ipcs -m -i 1620836354
+
+# Delete shared memory segment
+ipcrm shm 1620836354
+
+# Show creator and last process for all the shared memory
+ipcs -mp
+
+# Show creator and last process for a pasticular shared memory (shmid)
+ipcs -mp -i 1620836354
+ipcs -m  -i 1620836354
+
+# Find all shared memory processes that are still running (found in ps)
+# Upon cleanup of last process, items in ipcx marked "dest"
+# will be removed
+ps -elf | grep -v grep | egrep "`ipcs -mp | AND '\d+' | get_nth -2 -1 | row_2_col | sort -u | transpose | replace ' ' '|'`"
+
+# Attaches the shared memory segment identified by shmid to the address space of the calling process (IPC)
+man shmat
+# example from rtfsched.c:
+# if ((pb = (RTFSCHED_SDEF *)shmat(shmid, 0, 0)) == (RTFSCHED_SDEF *)-1)
+
+# Allocates a shared memory segment (IPC)
+man shmget
+# example from rtfsched.c:
+# if ((shmid = shmget(key, sizeof(RTFSCHED_SDEF), 0666|create)) == -1)
+
+# Fix UI start up error: Waiting for master session to start
+ipcx
+ipcclean
+
+
+#############################################################
+## Linux Commands - kill, killall, skill
+#############################################################
+
+# kills all possible processes
+kill -9 -1
+
+# Kill all of someones processes
+skill -KILL -u xbe4092
+killall -u xbe4092
+
+# Remove myself from someone's bench (kill)
+killall -u $USER
+
+# Kill all user sessions/windows (cleanup)
+skill -KILL <user>
+
+
+#############################################################
+## Linux Commands - last, lastlog
+#############################################################
+
+# Display all users that are logged in
+last
+last -i # IP address
+
+# View all last login times for all users
+lastlog
+lastlog | NOT "Never logged" | AND "Jan\s+(9|10)"
+
+# View last login for a user
+last xbe4092
+
+
+#############################################################
+## Linux Commands - ld
+#############################################################
+
+# Check if library can be found (gnu make)
+ld -libmy.a
+
+
+#############################################################
+## Linux Commands - ldd, ldconfig
+#############################################################
+
+# Print shared library dependancies (Added: 2017-10-04 02:02:51 PM)
+ldd `which svn`
+
+# configure dynamic library linker run-time bindings (Added: 2017-10-04 02:11:12 PM)
+ldconfig -v
+
+# Search locations of system libraries (DES, Setup new machine)
+ldconfig -p | grep my_lib
+
+
+#############################################################
+## Linux Commands - locate
+#############################################################
+
+# Search for a c header file (DES)
+sudo updatedb        # If added from apt-get
+locate my_header
+
+
+#############################################################
+## Linux Commands - ls, ll
+#############################################################
+
+# Apply a character class to list (ls files)
+ll *2[1-3]
+
+
+#############################################################
+## Linux Commands - mail
+#############################################################
+
+# Email the contents of a file to someone
+echo $(cat mail.dat) | mail -s "File Name" timofey.potapov@pw.utc.com
+
+# Print fixed width (monospace) emails
+cat batch_report.formatted | perl -le 'print "<html><body><pre>\n", <>, "\n</pre></body></html>"' | mail -s "html report -a " -a "Content-Type: text/html" timofey.potapov@pw.utc.com
+
+# Send email with a file as an attachment
+cat ENV_linux.txt | mail -s "attachement" -a "Content-Type: html" timofey.potapov@pw.utc.com
+
+# Send mail from another bench
+ssh potapov@lnxbr25 'cat ~/bin/date.dat | mail -s "subject" timofey.potapov@pw.utc.com'
+
+# Find out which benches can send emails
+run_on_all_benches.p 'echo "on bench `uname -n`" | mail -s "`uname -n`" melvin.williams@pw.utc.com'
+
+# View emails on bench
+mail
+
+# Delete single email of yours on bench
+mail
+>> d
+
+# Delete all your emails on bench
+mail
+>> d*
+
+
+#############################################################
+## Linux Commands - man
+#############################################################
+
+# Show the location of all man page (manual/pod)
+man --where --all date
+
+# read a specific man page when there are many with the same name (Added: 2017-11-02 09:04:16 AM)
+man -k readlink
+man 2 readlink
+
+
+#############################################################
+## Linux Commands - mountpoint
+#############################################################
+
+# Check if a directory is mounted
+mountpoint /media/tim/OTRS_BACKUP/ -q && echo "mounted"
+
+
+#############################################################
+## Linux Commands - netstat
+#############################################################
+
+# Display a table of all network interfaces
+netstat -i
+
+# Display summary statistics for each protocol
+netstat -s
+
+# View all network traffic for OMS
+netstat -anpe | grep oms
+
+# View routing table  (Debug,pi,IP addresses)
+netstat -r
+netstat -rn 	# No DNS lookup
+
+
+#############################################################
+## Linux Commands - nmon
+#############################################################
+
+# Monitor overrun processes (DES,UI)
+sudo apt-get install nmon
+
+
+#############################################################
+## Linux Commands - nslookup (dig)
+#############################################################
+
+# Convert network address to name like DNS
+nslookup 1.1.1.1
+host sapbr01
+# Find DNS servers
+nslookup
+> lserver
+
+
+#############################################################
+## Linux Commands - passwd, chpasswd, vipw, gpasswd
+#############################################################
+
+# Reset/Change a users password (admin)
+ Log unto fs
+sudo passwd xbexxxx
+asdf1234
+asdf1234
+sudo make -C /var/yp
+
+# Reset password in a script with no prompt (change)
+# Can only supply one user to "passwd"
+echo asdf1234 | sudo passwd xbe4092 --stdin; sudo make -C /var/yp
+echo -e "xbe4092:asdf1234\npotapov:asdf1234" | sudo chpasswd; sudo make -C /var/yp
+
+# Reset password over ssh (change,admin)
+ssh -qtY potapov@lnxbrfs01 'echo -e "xbe4092:asdf123\npotapov:asdf123" | sudo /usr/sbin/chpasswd; sudo make -C /var/yp'
+sb fs1 'echo -e "xbe4092:asdf123\npotapov:asdf123" | sudo /usr/sbin/chpasswd; sudo make -C /var/yp'
+
+# Reset password of many users (admin,change)
+echo "xbe4092:asdf1234" | sudo chpasswd
+sudo make -C /var/yp
+
+# Edit the password file. Disable/Lock user accounts before deleting
+# Change /bin/bash to /bin/false
+# Asterisk in password field disables account
+sudo vipw
+sudo make -C /var/yp
+
+# Check if specific user account is:
+# L  - Locked
+# NP - No Password
+# P  - Password is set (OK)
+sudo passwd -S SOME_USER
+
+# Check all user accounts if:
+# L  - Locked
+# NP - No Password
+# P  - Password is set (OK)
+sudo passwd -Sa
+
+# Remove user from a group (delete, passwd)
+Log unto fs01
+sudo gpasswd -d potapov controls
+sudo make -C /var/yp
+
+
+#############################################################
+## Linux Commands - pidof
+#############################################################
+
+# Process ID of a program (PID)
+pidof omsCommand
+
+
+#############################################################
+## Linux Commands - ps
+#############################################################
+
+# Kill the ui when things aren't working
+ps -ef | grep ui
+
+# See all users on the bench
+ps -elf | grep ui
+
+# Show which processes were started by the current user
+ps -elf | grep $USER
+
+# Kill unigraph process if it is running in the background
+ps -elf | grep unigraph | perl -anle '`skill -KILL $F[3]`'
+
+# Be more specific in process selection (ps) options
+ps -o user,ucmd --no-heading -C ui
+
+# Currently running process (use in a script such as getinfo.sh)
+ps -elf | grep getinfo.sh | grep -v grep | grep -v $$
+
+# Check if puppet is running on all the benches
+run_on_all_benches.pl 'ps -elf | grep puppet | grep -v grep'
+
+# Check if systemd or init is used
+ps -p 1
+
+
+#############################################################
+## Linux Commands - rcs
+#############################################################
+
+# Unlock a file
+co -u file
+
+# RCS error: file is in use
+rm -f RCS/,file_name
+
+# RCS error: file locked by pwxxxx
+rcs -U file
+
+# RCS: check in a file initially without the prompt message
+ci -t-msg tiny2_rcs.tst
+
+
+#############################################################
+## Linux Commands - read
+#############################################################
+
+# Read input from the keyword/user without showing the password (much easier in bash)
+read -s pass; echo "got [$pass]"
+read -s -p "Password:" pass; echo; echo "got [$pass]"
+
+# Read input from the keyword/user without showing the password. Limit password length
+read -s -n 5 -p "Password:" pass; echo; echo "got [$pass]"
+
+
+#############################################################
+## Linux Commands - reptyr
+#############################################################
+
+# Attach to a running process on the existing terminal
+sudo apt-get install reptyr
+
+
+#############################################################
+## Linux Commands - rsnapshot
+#############################################################
+
+# Install rsnapshot on centos
+yum install epel-release
+yum install rsnapshot
+
+# Check if rsnapshot configuration file is valid
+rsnapshot configtest
+
+# Show the command that would be executed
+rsnapshot -t daily
+rsnapshot -t weekly
+
+
+#############################################################
+## Linux Commands - rsync
+#############################################################
+
+# Copy/Sync entire directories
+rsync -avh FROM TO
+
+# Copy/Sync entire directories including the folder structure
+rsync -R FROM TO
+
+# Delete all files using "rsync"
+rsync -a --delete emptry_dir/ data_dir/
+
+
+#############################################################
+## Linux Commands - rm
+#############################################################
+
+# Apply a character class to remove files
+rm -f *2[1-3]
+
+# Time how long a process take
+time rm -f file
+#								# files:  100		20,000		30,000		50,000
+# Delete all files using "rm"
+rm -f dir/*						# real    0m0.329s	0m26.650s	0m33.476s	35m35.183
+rm -fr dir						# real    0m0.181s	0m31.099s	0m45.349s	57m58.145s
+
+
+#############################################################
+## Linux Commands - screen
+#############################################################
+
+# Clean up dead UI sessions (for Tony, Cody)
+screen -wipe
+
+
+#############################################################
+## Linux Commands - screen
+#############################################################
+
+# Fix screen -x when it is a display issue
+script /dev/null
+
+
+#############################################################
+## Linux Commands - sed
+#############################################################
+
+# Remove lines which contain abc
+a='
+abc is here
+its not here
+nore here
+but abs is here too
+'
+echo "$a" | grep -v abc
+echo "$a" | sed '/abc/d'
+
+# Remove first line from a file
+cat my.csv | cut -d, -f1 | sed 1d
+
+# Find and replace using sed
+echo $STACK | sed 's/call/CALL/'
+echo $STACK | sed 's/call/CALL/gi'
+
+# Modify only select lines
+echo "$a" | sed '/abc/  {s/here/NOT here/}'
+echo "$a" | sed '/abc/! {s/here/NOT here/}'
+
+
+#############################################################
+## Linux Commands - set
+#############################################################
+
+# See what running running in the background of a linux script
+set -x 		# Enable trace
+set +x 		# Disable trace (default)
+
+# Comparison of set and shopt in Bash
+# set   -> $SHELLOPTS (Added: 2017-11-27 08:52:25 AM)
+# shopt -> $BASHOPTS
+
+
+#############################################################
+## Linux Commands - set
+#############################################################
+
+# Reset xmodmap settings
+setxkbmap
+
+
+#############################################################
+## Linux Commands - scp
+#############################################################
+
+# Copy a file over the network (using ssh)
+scp file xbe4092@lnxbr35:location_to_place
+
+# Copy a directory over the network (using ssh)
+scp -r directory xbe4092@lnxbr35:location_to_place
+
+
+#############################################################
+## Linux Commands - shopt
+#############################################################
+
+# View various bash options that are set (Added: 2017-11-27 08:49:40 AM)
+shopt
+
+
+#############################################################
+## Linux Commands - source
+#############################################################
+
+# Source a file
+source .bashrc
+. .bashrc
+
+# Check if script is sourced
+[[ $- = *i* ]] && echo "Sourced"
+
+# Source a file from a file stream (Debian 7. at least bash 4.2)
+source <(cat file | do_something)
+source /dev/stdin <<<"$(cat <(cat file | do_something))"
+
+
+#############################################################
+## Linux Commands - sponge
+#############################################################
+
+# Read from and write to the same file without overwriting it (Linux)
+cat abc | perl -ple 's/C/Z/' | sponge abc
+
+
+#############################################################
+## Linux Commands - ss (Sockets)
+#############################################################
+
+# View listening sockets on linux
+ss -tlpn
+
+
+#############################################################
+## Linux Commands - ssh
+#############################################################
+
+# Pass data through ssh
+cat ~/.ssh/id_rsa.pub | ssh SOME_USER@lnxbr24 'cat >> .ssh/authorized_keys'
+
+# ssh while preserving X11
+ssh -Y
+
+# Cannot ssh. get message about error in locking .Xauthority file. no xauth data
+rm -f ~/.Xauthority
+
+# Port Forwarding (aka Tunneling)
+ssh USER@localhost -p PORT -x -L local_socket:host:hostport
+#
+# Connect 8080 of remote to local 8081 (in browser)
+ssh tim@localhost -p PORT -x -L 8081:host:8080
+
+# Check if host is port forwarding (tunneling)
+ss -o state listening | and 127.0.0.1 http
+
+# Check if VM (remote) is port forwarding (tunneling)
+ss -o state established | and 10.0.2.2
+
+
+#############################################################
+## Linux Commands - ssh-agent
+#############################################################
+
+# Add ssh agent
+eval `ssh-agent -s`
+ssh-add
+
+# Kill agent
+ssh-agent -k
+
+
+#############################################################
+## Linux Commands - ssh-keygen
+#############################################################
+
+# Setup new machine: key for quick access
+# Use a longer key with ssh public keys
+ssh-keygen -t rsa -b 4096
+cd ~/.ssh/
+cat id_rsa.pub >> authorized_keys
+
+# Generate ssh key with more details
+ssh-keygen -t rsa -b 4096 -C timofey.potapov@otrs.com -f id_rsa_OTRS_SAAS_$(date +%F)
+# -C COMMENT
+# -f Specific file to use
+# -b Specific encryption bit size
+
+# Problem: Host key differs from IP address
+# Fix:     Remove offending ssh key ECDSA.
+ssh-keygen -R 10..181.54
+
+# Remove offending key for a host and port name
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "host:port"
+ssh-keygen -f "$HOME/.ssh/known_hosts" -R "[localhost]:2222"
+
+
+#############################################################
+## Linux Commands - sort
+#############################################################
+
+# Sort ignoring case (Bash)
+sort -f
+ls -1d [Ee]* | sort -f
+
+
+#############################################################
+## Linux Commands - stat
+#############################################################
+
+# View the number of hard links to a file or folder
+stat -c %h /run
+
+
+#############################################################
+## Linux Commands - stty
+#############################################################
+
+# View the control character escapes
+stty -a
+
+
+#############################################################
+## Linux Commands - systemctl
+#############################################################
+
+# Autostart linux service at boot
+sudo systemctl enable elasticsearch.service
+
+# Reload fstab without reboot
+systemctl daemon-reload
+
+# Run a user server (not system wide)
+mkdir ~/.config/systemd/user/defaults.target.wants
+cd ~/.config/systemd/user
+vi selenium.service
+#
+# Add to file:
++ [Unit]
++ Description=Selenium Server
++
++ [Service]
++ Environment=DISPLAY=:1   # should match echo $DISPLAY
++ ExecStart=/usr/bin/java -Dwebdriver.chrome.driver=/usr/bin/chromedriver -jar /usr/local/lib/selenium/current.jar -role standalone -debug
++ SuccessExitStatus=143
++
++ [Install]
++ WantedBy=default.target
+#
+# Reload services
+systemctl --user daemon-reload
+#
+# Restart user service
+systemctl --user start selenium.service
+
+# Workaround for not being able to set selenium service
+# environmental dynamically.
+# Add to ~/.profile
+#
++ # Workaround: Update DISPLAY variable in selenium.service file
++ export SELENIUM_SERVICE_FILE=/etc/systemd/system/selenium.service
++ if [ -e "$SELENIUM_SERVICE_FILE" ]; then
++    if [ $(grep "Environment=DISPLAY=$DISPLAY" $SELENIUM_SERVICE_FILE -c) -eq 0 ]; then
++       sudo perl -i -lpe 's/ ^ Environment=DISPLAY= \K .* /$ENV{DISPLAY}/x' $SELENIUM_SERVICE_FILE
++       sudo systemctl daemon-reload
++       sudo systemctl stop selenium.service
++       sudo systemctl start selenium.service
++       echo "Updated DISPLAY in $SELENIUM_SERVICE_FILE"
++    fi
++ fi
+
+
+#############################################################
+## Linux Commands - su
+#############################################################
+
+# Get into a disabled account
+sudo su -s /bin/bash SOME_USER
+
+
+#############################################################
+## Linux Commands - sudo
+#############################################################
+
+# sudo while preserving the original environment
+sudo -E
+
+# Check it you have sudo access (0 mean yes, 1 means no)
+sudo -v 2>&1 | wc -l
+
+# Become and stay root
+sudo su -
+
+
+#############################################################
+## Linux Commands - svn (general)
+#############################################################
+
+# Install new version of svn (done on lnxbr43) (subversion) (Added: 2017-10-09 09:29:26 AM)
+setup_http_proxy
+mkdir ~/deb
+url="http://opensource.wandisco.com/debian/dists/wheezy/svn18/binary-i386"
+wget -q $url/libserf1_1.3.7-1+WANdisco_i386.deb
+wget -q $url/libsvn1_1.8.19-1+WANdisco_i386.deb
+wget -q $url/subversion_1.8.19-1+WANdisco_i386.deb
+sudo apt-get install -f
+sudo dpkg -i libserf1_1.3.7-1+WANdisco_i386.deb
+sudo apt-get install -f
+sudo dpkg -i libsvn1_1.8.19-1+WANdisco_i386.deb
+sudo apt-get install -f
+sudo dpkg -i subversion_1.8.19-1+WANdisco_i386.deb
+sudo apt-get install -f
+sudo apt-get autoremove
+
+# Create an empty svn repository
+svnadmin create .svn
+
+# Find out the revision number of a svn directory
+svn info
+svn info <URL>
+
+# Check the status of an SVN
+svn status
+
+# Check svn status ignoring unmodified
+svn status -q
+
+# Check svn status showing outdated files
+svn status -u
+
+# Check svn status showing details on all the files
+svn status -v
+
+# View the contents of a repository
+svn ls <url>
+
+# View a log of comited changed to repository
+svn log <url>
+
+# View incremental changes to a file
+svn log --diff file
+
+# View the files that were modified per checkin
+svn log -v
+
+# View only a view entries (2) in the log
+svn log -l 2
+
+# Compare current revision to a particular revision for a file
+svn diff -r 4642 oms_sim.c
+
+# Resolve conflicts in SVN repository
+svn resolve
+
+# Check out a specific revision/version
+svn co -r 4705 file:////home/sb_dev/src/omspp/trunk .
+
+# View all the tags for an svn repository
+svn ls -v ^/tags
+#
+# ^   means head of repo
+# ^/  means tags is found right in directly below repo head
+
+# Add new file to existing svn repository
+svn add file
+
+# Commit new files to svn repository
+svn ci file -m "comment"
+
+# Check out a particular revision/version from the repository
+svn co URL_GOES_HERE@DESIRED_REVISION WHERE_TO_SAVE
+
+# Create a new svn directory (like batch_test)
+svn import Batch_Test/ <url> -m "Added Batch_Test folder for nightly batch tool"
+
+# Checkout a file/directory from SVN
+svn export <url> --username tpotapov
+
+# Update svn in the current directory
+svn update
+
+# Update SVN to a specific version
+svn update -r 147
+
+# Revert svn repository to a previous state/version (undo) (Added: 2017-10-31 04:32:02 PM)
+svn update -r 4611
+
+
+#############################################################
+## Linux Commands - svn (misc)
+#############################################################
+
+# Remove/delete a file from the repository
+svn rm <url>/abc -m "testing"
+
+# clean up the svn (to remove locks)
+svn cleanup
+
+# ERROR: Failed to run the WC DB work queue associated with (svn)
+cd ~/omspp/trunk
+# Files still in queue
+sqlite3 .svn/wc.db '.explain on' 'select * from work_queue'
+# Delete all files in queue
+sqlite3 .svn/wc.db '.explain on' 'delete from work_queue'
+# Cleanup
+svn cleanup
+
+# Setup SVN Cyient variables (debugging use)
+svn_pull_url="<url>/Tests"
+svn_push_url="<url>/Results"
+svn_username="tpotapov"
+read -s -p "password: " svn_password
+SB run 1234 t1+a "svn pull=$svn_pull_url push=$svn_push_url user=$svn_username pass=$svn_password"
+
+
+#############################################################
+## Linux Commands - tail
+#############################################################
+
+# Retain only the most rescent 10 logs (logs in this format: 2017Y_06m_22d_12H_34M_55S) (keep,remove)
+max=10
+ls -1 2* | tail -n +$(($max+1)) | xargs rm -f
+
+
+#############################################################
+## Linux Commands - tar, zip
+#############################################################
+
+# Extract a tar file (.gz) untar a file (unzip)
+tar -zxvf <file>
+tar -xvzf rakudo-star-2017.01.tar.gz
+
+# Zip a file (compress)
+zip my.zip dir/*
+
+# Unzip a git repository/file
+unzip <file>
+
+# Unzip and word document into xml
+unzip word.docx
+
+# Compress a folder into a zipped file
+tar -cvvf  dir.tar dir     # Normal size
+tar -cvvzf dir.gz  dir     # Zipped, fraction of size
+
+# Decompress a folder from a zipped file
+tar -xvvf  dir.gz  dir
+
+# Untar a file into another directory (uncompress)
+tar -xvvf ~/dir1/tar_file -C ~/dir2
+
+
+#############################################################
+## Linux Commands - test
+#############################################################
+
+# Process only a certain file (Added: 2017-10-26 10:04:53 AM)
+if test -s acteec_out.gloascii
+
+
+#############################################################
+## Linux Commands - top
+#############################################################
+
+# Monitor processes by user
+top -b -U potapov -n1
+
+# Monitor activity (like top which shows high load average)
+sudo iftop -i eth1
+
+# Tools for checking/detecting slow processing
+ps
+top
+htop
+
+
+#############################################################
+## Linux Commands - tmux
+#############################################################
+
+# Start new tmux
+tmux
+
+# Start new tmux withh a session name
+tmux new -s SESSION_NAME
+
+# Attach to a tmux
+tmux a -t SESSION_NAME_OR_NUMBER
+
+# List tmux sessions
+tmux ls
+
+# Kill tmux session
+tmux kill-session -t SESSION_NAME_OR_NUMBER
+
+# Kill all tmux sessions (NOT PERMITTED)
+tmux ls | grep : | cut -d. -f1 | awk '{print substr($1, 0, length($1)-1)}' | xargs kill
+
+# Control-b help tmux menu
+Control-b ?
+
+# Dettach from a tmux session
+Control-b d
+
+# Kill all tmux sessions
+tmux ls | perl -aF: -ne 'qx(tmux kill-session -t $F[0])'
+
+
+#############################################################
+## Linux Commands - touch
+#############################################################
+
+# Changes a timestamp to be a specific date
+touch $FILE -d 'Feb 11 2015'
+touch $FILE -d 'Apr 11 2017 10:11'
+
+
+#############################################################
+## Linux Commands - tr
+#############################################################
+
+# Remove all extra spaces in a line (squash)
+echo " a    f    " | tr -s " "
+
+# Convert a string to lower case (change case)
+echo ABd | tr [:upper:] [:lower:]
+
+# Convert a string to upper case (change case)
+echo Abd | tr [:lower:] [:upper:]
+
+
+#############################################################
+## Linux Commands - useradd
+#############################################################
+
+# Create a new user account for BENCH
+uid=$UID
+user=SOME_USER
+gid=123
+/usr/sbin/useradd -u $uid -g $gid -d /home/$user -m $user
+passwd SOME_USER          # asdf1234
+
+# Create new user accounts
+i=1001
+for u in potapov SOME_USER; do
+   /usr/sbin/useradd -u $i -g systems -d /home3/$u -m $u -s /bin/bash
+   let "i++"
+done
+# run 'passwd $u' for each user
+
+# Change default shell of current user (or use useradd -s /bin/bash)
+chsh -s /bin/bash
+
+
+#############################################################
+## Linux Commands - userdel
+#############################################################
+
+# Remove all users accounts in a list
+# $a contains a list of "username - home_directory"
+echo "$a" | while read u h; do echo -e "\n# Deleting $u\n"; sudo userdel -r $u; done
+
+
+#############################################################
+## Linux Commands - usermod
+#############################################################
+
+# Change group id of a user (DES,gid)
+sudo usermod -g 1000 potapov
+
+# Change user id of a user (DES,uid)
+sudo usermod -u 10285 potapov
+
+# Add user to a new group/groups (passwd)
+Log unto fs01
+sudo usermod -a -G controls,system potapov
+sudo make -C /var/yp
+
+# Change the shell for a specific user
+sudo usermod -s /bin/bash potapov   # can specify user here
+
+# Change full name in passwd file
+sudo usermod -c "Last First" xbeXXXX
+
+# Change home directory
+Log unto fs01
+cd /home3
+sudo usermod -d /home4/xbe4092 xbe4092
+
+# Move home directory
+Log unto fs01
+sudo usermod -d /home4/xbe4092 -m xbe4092
+
+# Add/append group to user
+# Current user would need to log out and in again
+# for changes to take effect.
+sudo usermod -a -G GROUP_NAME USER
+
+
+#############################################################
+## Linux Commands - watch
+#############################################################
+
+# Watch the UI sessions
+watch -d -n1 screen -list
+
+# Alias command to watch all the files in the current directory for changes
+alias watch_files='watch ls -alF'
+
+
+#############################################################
+## Linux Commands - wget
+#############################################################
+
+# Pass through wget firewall/proxy (Download)
+read -sp "Password: " PASSWORD
+export http_proxy=http://xbe4092:$PASSWORD@pratt-proxyva.utc.com:8080/
+export https_proxy=http://xbe4092:$PASSWORD@pratt-proxyva.utc.com:8080/
+# If password contains special characters (like #,@ ...)
+
+
+#############################################################
+## Linux Commands - whereis
+#############################################################
+
+# Locate a program
+which perl
+whereis perl
+
+
+#############################################################
+## Linux Commands - who
+#############################################################
+
+# See all users on the bench
+who
+
+
+#############################################################
+## Linux Commands - xargs
+#############################################################
+
+# Make xargs work when files may have spaces in the name (Added: 2017-10-27 08:48:11 AM)
+# changes the delimiter from a space to a newline
+ls abc\ file.txt | xargs -d "\n" grep tuff
+
+
+#############################################################
+## Linux Commands - xrandr
+#############################################################
+
+# Find out the monitor/screen size (pi)
+xrandr
+/opt/vc/bin/tvservice -s
+
+
+#############################################################
+## Linux Commands - xterm
+#############################################################
+
+# Resize window (Putty,xterm)
+echo -e '\e[8;50;100t'
+
+# Minimize the window for a few seconds, then restore it (Putty,xterm)
+echo -e '\e[2t' && sleep 2 && echo -e '\e[1t'
+
+# Move the window to the top/left corner of the display (Putty,xterm)
+echo -e '\e[3;0;0t'
+
+# Zoom the window (Putty,xterm)
+echo -e '\e[9;1t'
+
+# Bring the window to the front (without changing keyboard focus) (Putty,xterm)
+echo -e '\e[5t'
+
+ Change the name of an xterm window to "string"
+echo -ne "\033]2;string\007"
+
+# Change the name of an xterm icon to "string"
+echo -ne "\033]1;string\007"
+
+# Change the name of an xterm icon and window to "string"
+echo -ne "\033]0;string\007"
+
+# Create alias to easily change the window name and icon name
+# Must be run together!
+set_title(){ echo -ne "\033]0;$@\007"; }
+alias title='set_title'
+
+# Get dimensions/size of a screen/xterm
+xdpyinfo | grep dimensions
+xrandr | grep '*'
+
+# Get the size of an xterm window
+xwininfo
+
+# Get info about current xterm window
+xdpyinfo
+
+# Get size info of a named xterm window
+xwininfo -name omsGUI_0_3
+
+# Get info about an xterm window
+xprop -id <window_id>
+xprop -id 0x2400022
+
+# Get position of the cursor
+perl -e '$/ = "R";' -e 'print "\033[6n";my $x=<STDIN>;my($n, $m)=$x=~m/(\d+)\;(\d+)/;print "Current position: $m, $n\n";'
+
+# Print how many columns and rows an xterm window uses for its screen size
+tput cols
+tput lines
+reset
+
+# Change fond/colors of an xterm window
+RESTORE='\033[0m'
+RED='\033[00;31m'
+GREEN='\033[00;32m'
+YELLOW='\033[00;33m'
+VIOLET='\033[00;35m'
+TEAL='\033[00;36m'
+GREY='\033[00;37m'
+
+# View color ansi escapes with less (like Vim)
+less -R file
+
+# Make xterm text color bold
+BOLD='\033[1m'
+
+# Make xterm text color blink
+BLINK='\033[5m'
+
+# Move mouse to a specific location on the screen/xterm window (on lnxbr42)
+xdotool mousemove 764 11
+
+# Click on a button (cannot on top bar , like the X for close)
+xdotool click 1
+
+# Get mouse location
+xdotool getmouselocation
+
+# Move mouse to a location and click at the same time
+xdotool mousemove 1747 30 click 1
+
+# print contents of X events (mouse activity/movement)
+xev
+
+# Install xdotool dependencies
+sudo apt-get install libxcb-xtest0:i386 libxcb-xtest0-dbg:i386 libxcb-xtest0-dev:i386
+dpkg -l | grep xtest
+
+# Other xdotool dependenacies
+sudo aptitude install
+
+# install xdotool from repository
+cd ~junk/xdo/xdotool-master
+sudo make install
+
+# Check dependencies of a debian package
+dpkg -I xdotool_3.20160512.1-1_i386.deb
+
+# Install package from source (.deb)
+sudo dpkg -i xdotool_3.20160512.1-1_i386.deb
+sudo apt-get install -f
+
+# Launch an xterm window into a certain directory
+xterm -e 'cd ~/dsu && /bin/bash'
+xterm -fg White -bg Black -sl 10000 -fn a14 -geometry 84x51+1722-78 -title "sre2bin" -e 'cd ~/dsu && /bin/bash'
+xterm -fg White -bg Black -sl 10000 -fn a14 -geometry 84x51+1722-78 -title "sre2bin" -e 'cd ~/dsu; /bin/bash'
+xterm -fg White -bg Black -sl 10000 -fn a14 -geometry 84x51+1722-78 -title "sre2bin" -e 'cd ~/dsu; bash'
+
+# Check if xterm environment is working (Added: 2017-11-02 03:56:18 PM)
+xeyes
+
+# Check what kind of terminal I am using (xterm,bench)
+echo $TERM
+
+# Wrap long lines unto next row in bash/linux
+# Exclose PS1 in '\[PS1_VALUE\]'
+
+
+#############################################################
+## Linux Commands - xxd
+#############################################################
+
+# Convert a binary file to hex
+xxd NVM_EDF_CHA.dat > tmp_file
+
+# Convert a hex file to binary
+xxd -r tmp_file > tmp.bin
+
+# Open a binary file in hex with vim
+vi <(xxd tmp.bin)
+
+
+#############################################################
+## Linux Commands - ypcat
+#############################################################
+
+# View password file on main server (yellow page cat)
+ypcat passwd
+
+# Add ypcat passwd command if missing
+vi /var/yp/nicknames
+# add entry: passwd      passwd.byname
+
+# Return users which are found in the yellow pages password file
+cat user_deletion_list | perl -ne 'print `ypcat passwd | grep $_` ' > found_in_yp
+
+# Remove/Delete a user account
+ 1. Check username in Outlook (CTRL-K)
+ 2. Check username in Yellow Pages (ypcat passwd | grep username)
+ 3. Go to file server
+sudo userdel -r username	# -r does this: sudo rm -rf username
+sudo make -C /var/yp
+
+
+#############################################################
+## Linux Commands - yppasswd
+#############################################################
+
+# Change your password
+yppasswd
+
+
+#############################################################
+## Linux Commands - zero
+#############################################################
+
+# Clear NVM/flash memory (from start to and including the end address)
+zero -p ppa -s 0xSTART_ADDRESS -e 0xEND_ADDRESS
+
+
+#############################################################
+## Linux Accounts
+#############################################################
+
+# Check when a users account was created (good unless file was updated or touched)
+ll ~SOME_USER/.bash_logout
+
+# Check when a users account was created (good unless home account changed)
+ll -d ~SOME_USER
+echo ~SOME_USER | perl -lne 'print for -M,-C,-A'
+
+
+#############################################################
+## Linux Hardware
+#############################################################
+
+# View how many processors are on a machine/bench
+cat proc/cpuinfo
+cat /proc/cpuinfo | perl -ln0777e "print ~~split qq(\n\n)"
+
+# Find out the service tag code of a machine (Bob)
+# That is the same as the serial number
+# Used for compability purposes (such as when getting new drives)
+/usr/sbin/dmidecode | perl -ln00e 'print if /System Information/'
+
+# Find out easily how many cpu there are (a command)
+lscpu
+
+# Add module to kernel (DES,UI,insert,library)
+insmod /lib/modules/2.6.11/kernel/fs/fat/fat.ko
+modprobe msdos
+
+# Find out version of debian you are running (DES)
+cat /etc/debian_version
+
+# Check processor family (DES,UI)
+grep "cpu family" /proc/cpuinfo
+# Cpu family of "6" means use "Pentium-Pro"
+
+# Change boot loader to use certain cpu's (DES,UI,Mark,shielding)
+cd /boot/grub
+sudo vi grub.cfg
+/\Vlinux /boot/vmlinuz-3.16.51+20180205+1524
+/\Vlinux /boot/vmlinuz-3.16.51+20180205+1524
+# Add this to
+isolcpus=0,1,2,3,4,5,6,7,8,9
+cat /proc/cmdline
+
+# Check timer frequency (DES,UI,CONFIG_HZ_1000)
+cat /usr/src/linux.config | OR CONFIG_COMPAT_BRK CONFIG_HZ_PERIODIC CONFIG_X86_GENERIC CONFIG_SCHED_SMT CONFIG_HZ_1000
+
+# find biggest binary number on the machine
+perl -lE '@a=split //, sprintf "%b",  ~~-1; print @a'
+perl -lE '@a=split //, sprintf "%b",  ~~-1; print scalar @a'
+
+# Size of an integer on this system
+perl -le 'print length pack "i"'
+
+
+#############################################################
+## Linux File Properties - General
+#############################################################
+
+# View more info about a file (Bash)
+# Number of links, inode
+stat $FILE
+
+# Print all the symbolic links in a directory and show where they link to (for Melvin)
+ls | perl -lne '$r=readlink; print "$_ -> $r" if -l'
+
+# Check if a file is opened (Added: 2017-11-20 02:48:53 PM)
+lsof | grep my_file
+
+# Check if vi has open (Added: 2017-11-20 02:49:11 PM)
+lsof -c vi
+
+# Check/Detect a symbolic link
+[ -L "link_file" ] && echo "A"
+
+
+#############################################################
+## Linux File Properties - Sticky Bit
+#############################################################
+
+# Show if sticky bit is set on temp directory
+[ -k /tmp ] && echo t
+
+# Set sticky bit
+chmod +t /tmp
+
+# Remove sticky bit
+chmod -t /tmp
+
+
+#############################################################
+## Linux Firewall
+#############################################################
+
+# Add port to firewall
+firewall-cmd --add-port=8081/tcp --permanent
+firewall-cmd --reload
+
+# Problem:
+#     Created a docker container and published it to a certain port.
+#     Port returns nothing in a web browser
+# Solution:
+#     The machine has a firewall.
+#     I had to do as root:
+firewall-cmd -add-port=8089/tcp --permanent
+
+
+#############################################################
+## Linux Logging
+#############################################################
+
+# View the error log for puppet
+cat /var/log/syslog
+
+
+#############################################################
+## Linux Mounting
+#############################################################
+
+# Check paths to file servers
+mount
+
+# Fix Stale NFS on a file server. home4 down. cannot access
+sudo umount -lf /net/home4
+				# should automount in a few secs
+/etc/init.d/autofs restart	# Otherwise, restart manually
+/etc/init.d/nfs-common restart	# Do both
+
+# Change path to file server.
+sudo vi /etc/auto.pw 		# edit OLD to NEW
+sudo service autofs reload	# reload auto mounting (only on higher benches)
+sudo /etc/init.d/autofs restart
+sudo /etc/init.d/autofs reload
+
+# Get copy of latest auto loader server file
+sudo \cp /home3/SOME_USER/auto.pw /etc/auto.pw
+sudo /etc/init.d/autofs reload
+
+# Setup puppet to change path to file server
+sudo vi /etc/puppet/modules/autofs/files/auto.pw
+sudo /etc/init.d/autofs reload
+
+
+#############################################################
+## Linux Software
+#############################################################
+
+# Which OS version are we using (DES)
+lsb_release -a
+
+# Find out if using 32 or 64 bit linux system
+uname -m     # 32 is i686 or i386, 64 is x86_64
+
+# Find out the release name (UI,bench,DES)
+lsb_release -a
+
+# Show which debian version name machine is (such as wheezy) (Added: 2017-10-05 11:26:48 AM)
+lsb_release -cs
+
+
+#############################################################
+## Linux Swap Memory
+#############################################################
+
+# Create swap memory file
+#
+mkdir /media/fasthdd
+dd if=/dev/zero of=/media/fasthdd/swapfile.img bs=512 count=1M
+#
+# Turn that swap file into a filesystem !?
+mkswap /media/fasthdd/swapfile.img
+chmod 600 /media/fasthdd/swapfile.img
+#
+# Add this line to /etc/fstab to be able to use the swap at startup
+/media/fasthdd/swapfile.img swap swap sw 0 0
+#
+# Activate the swap file
+swapon /media/fasthdd/swapfile.img
+#
+# Deactivate the swap file
+swapoff /media/fasthdd/swapfile.img
+
+# View swap memory
+cat /proc/swaps
+top
+
+
+#############################################################
+## Ansible
+#############################################################
+
+# Install ansible prerequisites (on lnxbr42)
+sudo apt-get install vagrant virtualbox
+
+# Install ansible
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 123456
+sudo apt-get update
+sudo apt-get install ansible
+
+
+#############################################################
+## Bash - General
+#############################################################
+
+# See max expansion of *
+getconf ARG_MAX		# 2097152
+
+# Run a bash command without using a file
+bash -c 'echo abc'
+
+# Link without having to go the that folder location
+bash -c 'cd; cd sb_stats; rm -f latest; ln -s my latest'
+#
+latest_file=nytprof/1/my.out
+latest_link=nytprof/latest
+ln -r -s "$latest_file" "$latest_link"
+
+
+#############################################################
+## Bash - Arrays
+#############################################################
+
+# Making an array in bash ($* $@)
+a=(one two "three four")
+
+# Subtle differences in using an array in bash ($* $@)
+print_args ${a[*]}
+[one]
+[two]
+[three]
+[four]
+
+# Subtle differences in using an array in bash ($* $@)
+print_args ${a[@]}
+[one]
+[two]
+[three]
+[four]
+
+# Subtle differences in using an array in bash ($* $@)
+print_args "${a[*]}"
+[one two three four]
+
+# Subtle differences in using an array in bash ($* $@)
+print_args "${a[@]}"
+[one]
+[two]
+[three four]
+
+# Loop through array ($* $@)
+for n in ${a[*]}; do echo $n; done
+one
+two
+three
+four
+
+# Loop through array ($* $@)
+for n in ${a[@]}; do echo $n; done
+one
+two
+three
+four
+
+# Loop through array ($* $@)
+for n in "${a[*]}"; do echo $n; done
+one two three four
+
+# Loop through array ($* $@)
+for n in "${a[@]}"; do echo "$n"; done
+one
+two
+three four
+
+# Copy one array in bash to another array
+b=("${a[@]}")
+
+# Get size of an array (bash,var)
+size=${#array[@]}
+
+# Delete first or last element from an array (bash,shift,var)
+unset array[0]
+unset array[-1]
+
+# Loop through array input ($* $@)
+for n in "$@"; do echo "[$n]"; done
+
+# Add to an associative array/hash in bash
+h[a b c]="abc val"
+h[d e f]="def val"
+h[x y z]="xyz val"
+
+# Print an associative array/hash in bash
+echo ${h[@]}
+echo ${h[*]}
+
+# Bash var sublty (bug 1). Unset array is missing instead of empty
+a=(one two "three four" "five")
+print_args "${a[@]}"
+print_args "${a[@]}" 5
+unset b
+print_args "${b[@]}" 5
+print_args "${b}" 5
+
+
+#############################################################
+## Bash - Ascii Art
+#############################################################
+
+# Ascii Art
+figlet "svn update"
+
+# Nice format for representing binary numbers (art,ascii)
+figlet "0000011111" -f digital
+
+# Show all available figlest fonts (ascii art)
+figlist | perl -lne '$a=/\bfonts.*:$/ ... /.*:/; print if $a > 1 and $a !~ /E/'
+# There are the nicer fonts
+banner big lean slant smslant standard
+# favorite
+slant
+figlet "svn update" -f slant
+
+# Center the ascii art (justify)
+figlet "svn update" -f slant -c
+
+# Right justify the ascii art and set a width of 60
+figlet "svn update" -f slant -r -w 60
+
+
+#############################################################
+## Bash - Autocomplete
+#############################################################
+
+# Example of using autocompletion (tab)
+/usr/share/bash-completion/completions/perl
+/usr/share/bash-completion/completions/ip
+
+# Generate autocompletion for own scripts (Bash,Tab)
+# Options - aaa aba bbb ccc
+_sb_tab(){
+   COMPREPLY=( $(compgen -W "`sb info`" -- "${COMP_WORDS[COMP_CWORD]}") )
+}
+complete -F _sb_tab sb
+
+# View all tab completions (Bash,Tab,auto)
+complete
+
+# Delete all tab completions (Bash,Tab,auto)
+complete -r
+
+# Use existing autocompletions
+complete -p | grep ls      # finds _longopt
+complete -F _longopt my_function
+
+# Bash autocomplete special variables
+# COMP_WORDS is an array containing all individual words in the current command line.
+# COMP_CWORD is an index of the word containing the current cursor position.
+# COMPREPLY is an array variable from which Bash reads the possible completions.
+
+# Tab completions source of bash commands (Bash,Tab,auto)
+vi /etc/bash_completion
+vi /usr/share/bash-completion/bash_completion
+
+# Generate autocompletion for own scripts (Bash,Tab)
+bash_autotab(){
+#  COMPREPLY=( $(compgen -W "$*" -- "${COMP_WORDS[COMP_CWORD]}") )
+#
+   local cur="${COMP_WORDS[COMP_CWORD]}"
+#
+   # Get possible words without consider colon characters
+   _get_comp_words_by_ref -n : cur
+#
+   COMPREPLY=( $(compgen -W "$*" -- "$cur") )
+#
+   # Remove colon contain prefix from COMPREPLY
+   __ltrim_colon_completions "$cur"
+#
+   #  echo "COMP_WORDS    = [${COMP_WORDS[@]}]"
+   #  echo "COMP_CWORD    = [${COMP_CWORD[@]}]"
+   #  echo "COMP_LINE     = [$COMP_LINE]"
+   #  echo "COMPREPLY     = [${COMPREPLY[@]}]"
+}
+otrs_module_install(){
+   echo "$OTRS_MODULE_TOOLS" Module::Package::Install "$@"
+}
+_otrs_module_install__tab(){
+   local possible=( $(ls "$OTRS_PACKGES_DIR") )
+   #
+   base_autotab ${possible[*]}
+   # base_autotab $(ls $OTRS_PACKGES_DIR)
+   #
+   # echo "COMP_WORDS    = [${COMP_WORDS[@]}]"
+   # echo "COMP_CWORD    = [${COMP_CWORD[@]}]"
+   # echo "COMPREPLY     = [${COMPREPLY[@]}]"
+}
+complete -F _otrs_module_install__tab otrs_module_install
+
+
+#############################################################
+## Bash - Command Info
+#############################################################
+
+# Get first command of current line
+echo "abc" | AND b | while read line; do echo "$line -> $BASH_COMMAND"; done
+
+# Get command just run (bash)
+rcmd2 -n 0 -c "echo \"here\""; echo "$_"
+
+
+#############################################################
+## Bash - Command Line Options
+#############################################################
+
+# Example of using command line options in bash
+while getopts :d:m opt; do
+  case $opt in
+      d) debug="$OPTARG";;
       m) more="$OPTARG";;
       :) /bin/echo -e "$usage"; exit 1;;
       \?) echo "undefined option -$OPTARG"; exit 1;;
