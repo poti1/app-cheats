@@ -16,7 +16,22 @@ Version 0.04
 
 our $VERSION = '0.04';
 
-=head1 SYNOPSIS
+=head1 ENVIRONMENT
+
+cheat expects to find a cheat* file somewhere
+in $CHEAT_DIRS.
+
+You can start with mine as an example:
+   https://github.com/poti1/cheats/blob/main/cheats.txt
+
+Save it and set this variable:
+   export CHEAT_DIRS="PATH_TO_CHEAT_DIRS"
+
+Optionally you can set this flag:
+   --cheat_dirs "PATH_TO_CHEAT_DIRS"
+
+If neither is provided, will search for a cheat
+file in the same location as this script.
 
 =head1 AUTHOR
 
