@@ -94,7 +94,7 @@ sub _colored {
 
 sub get_all_cheats {
    my ( $opts )    = @_;
-   my $cheat_dirs  = $opts->{cheat_dirs} // dirname $RealBin;
+   my $cheat_dirs  = $opts->{cheat_dirs} // $ENV{CHEAT_DIRS} // dirname $RealBin;
    my $type        = $opts->{type} // "cheats";
    my @cheat_files = map { glob "$_/$type*" } split /:/, $cheat_dirs;
    my @all;
