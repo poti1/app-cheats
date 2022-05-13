@@ -1,0 +1,18 @@
+bin/cheat
+Build.PL
+Changes
+cpanfile
+ignore.txt
+lib/App/Cheats.pm
+LICENSE
+MANIFEST			This list of files
+README
+README.pod
+t/00-load.t
+t/manifest.t
+t/pod-coverage.t
+t/pod.t
+TODO
+xt/boilerplate.t
+META.yml
+META.json
