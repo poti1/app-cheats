@@ -9007,6 +9007,21 @@ perl -MHTML::Tree -le '$t=HTML::Tree->new_from_file("rakudo.html"); print $t->lo
 
 
 #############################################################
+## Perl Modules - Inline::C
+#############################################################
+
+# Example of using Inline::C in perl
+use Inline "C";
+use Inline "NOCLEAN"; # Show blib
+print triple(5);
+__END__
+__C__
+int triple(int num) {
+   return num * 3;
+}
+
+
+#############################################################
 ## Perl Modules - IPC::SysV
 #############################################################
 
