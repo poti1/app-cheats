@@ -9012,13 +9012,19 @@ perl -MHTML::Tree -le '$t=HTML::Tree->new_from_file("rakudo.html"); print $t->lo
 
 # Example of using Inline::C in perl
 use Inline "C";
-use Inline "NOCLEAN"; # Show blib
+use Inline "NOCLEAN"; # Keep build library.
 print triple(5);
 __END__
 __C__
 int triple(int num) {
    return num * 3;
 }
+
+# Inline::C oneliner
+perl -MInline='C,int triple(int num){ return num * 3; }' -E 'say triple 4'
+
+# Inline::C oneliner (Keep build library)
+perl -MInline=NOCLEAN -MInline='C,int triple(int num){ return num * 3; }' -E 'say triple 4'
 
 
 #############################################################
