@@ -8867,6 +8867,14 @@ perl -MEmail::Outlook::Message -le 'print Email::Outlook::Message->new(shift)->t
 
 
 #############################################################
+## Perl Modules - Encode
+#############################################################
+
+# Example of using Encode to show string in different supported encodings (broken).
+perl -C -MEncode -E '$s1="Ue: Ü"; $s2="Euro: \N{EURO SIGN}"; for ( encodings ) { printf "%-15s: [%-7s] [%s]\n", $_, encode($_,$s1), encode($_,$s2) }'
+
+
+#############################################################
 ## Perl Modules - Excel::Writer::XLSX
 #############################################################
 
