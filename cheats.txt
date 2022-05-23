@@ -8697,6 +8697,23 @@ time perl -Mthreads -Mthreads::shared -le 'share $sum; $M=100_000_000; $T=6; $h=
 
 
 #############################################################
+## Perl Modules - Carp
+#############################################################
+
+# Show a stack trace in perl.
+perl -MCarp=longmess -E 'sub fun1{ fun2("TO FUN2") } sub fun2{ say longmess } fun1("TO FUN1")'
+
+# Show a stack trace in perl. (Carp uses a similar approach).
+# @DB::args is set (for a scope) when this command is run (some magic).
+{
+   package DB;
+   my @caller = caller($scope);
+   () = caller($scope);             # Same thing (to invoke LIST context).
+}
+perl -E 'sub fun1{ fun2("TO FUN2") } sub fun2{ my $scope = 0; while(my @caller = caller($scope)){ {package DB; () = caller($scope)} say "@caller[1,2,3,4] - (@DB::args)"; $scope++ }} fun1("TO FUN1")'
+
+
+#############################################################
 ## Perl Modules - Carton
 #############################################################
 
