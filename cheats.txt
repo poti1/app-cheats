@@ -11323,6 +11323,9 @@ sudo pip install telegram-send
 # With no space between ] and (
 [this](Trello)
 
+# Show card count in Trello.
+Filter: *
+
 
 #############################################################
 ## Termux
