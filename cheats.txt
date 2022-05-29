@@ -12791,12 +12791,50 @@ endfunction
 # Prepend in vimrc
 #
 call plug#begin('~/.vim/bundle')
-Plug 'pbogut/fzf-mru.vim'
-Plug 'ycm-core/YouCompleteMe'
+"
+" Conquerer of Completion
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'bmeneg/coc-perl'
+"
+" Solarized - better colors.
+Plug 'altercation/vim-colors-solarized'
+"
+" Tagbar - Show functions.
+Plug 'majutsushi/tagbar'
+"
+" Git Fugitive
+Plug 'tpope/vim-fugitive'
+" Commands:
+"     :Gblame  - Who broke it?
+"
+" Git Gutter - git status on the left side.
+Plug 'airblade/vim-gitgutter'
+"
+" GV - A git commit browser.
+Plug 'junegunn/gv.vim'
+" Commands:
+"     :GV to open commit browser
+"     You can pass git log options to the command, e.g. :GV -S foobar -- plugins.
+"     :GV! will only list commits that affected the current file
+"     :GV? fills the location list with the revisions of the current file
+"     :GV or :GV? can be used in visual mode to track the changes in the selected lines.
+" Mappings
+"     o or <cr> on a commit to display the content of it
+"     o or <cr> on commits to display the diff in the range
+"     O opens a new tab instead
+"     gb for :GBrowse
+"     ]] and [[ to move between commits
+"     . to start command-line with :Git [CURSOR] SHA à la fugitive
+"     q or gq to close
+"
+" Fuzzy search for files mru (most recently used).
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
 Plug 'junegunn/fzf.vim',
+Plug 'pbogut/fzf-mru.vim'
+"
+" Vim Rooter - Change to project root on file open.
 Plug 'airblade/vim-rooter'
-Plug 'vim-perl/vim-perl', { 'for': 'perl', 'do': 'make clean carp dancer highlight-all-pragmas moose test-more try-tiny' }
+"
 call plug#end()
 
 # Install plugin in vimrc file
@@ -12804,6 +12842,24 @@ call plug#end()
 
 # Vim plugin - Fuzzy search
 :File
+
+# Installing YouCompleteMe (autocomplete for vim).
+#
+# Original:
+apt install build-essential cmake vim-nox python3-dev
+apt install mono-complete golang nodejs default-jdk npm
+cd ~/.vim/bundle/YouCompleteMe
+python3 install.py --all
+#
+# Tried:
+sudo apt install build-essential cmake python3-dev
+sudo apt install golang nodejs
+cd ~/.vim/bundle/YouCompleteMe
+python3 install.py --system-libclang --clang-completer
+:YcmdRestartServer
+#
+# YCM does not seem to work on android.
+# Use COC instead.
 
 
 #############################################################
