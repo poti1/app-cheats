@@ -8657,6 +8657,11 @@ echo "line1 line4" | perl -Mre=eval -0777ne 'INIT{-t and die; $a=join "",map qq[
 ## Perl Modules - threads
 #############################################################
 
+# Error: This Perl not built to support threads
+# Check if perl binary supports threads.
+perl -V:useithreads
+perl -MConfig -E 'say $Config{useithreads}'
+
 # Simple thread example in perl
 # Threads start running already with threads->create()
 perl -Mthreads -le '@t=map threads->create(sub{print "Im #$_"}), 1..10; $_->join for @t'
