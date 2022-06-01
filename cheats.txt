@@ -5198,6 +5198,14 @@ document.querySelector('#id').insertAdjacentHTML('beforeEnd', to_add)
 # Use this to allow using script tags
 $(id).append(details_rc);
 
+# Stack trace in javascript (js).
+try {
+    // Code throwing an exception
+    throw new Error();
+} catch(e) {
+    console.log(e.stack);
+}
+
 
 #############################################################
 ## Javascript - Ajax
