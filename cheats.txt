@@ -8288,6 +8288,11 @@ perl -E 'eval { exit 1 }; say $@; END {say "here"}'   # Run before final exit.  
 perl -E 'eval { die }; say $@; END {say "here"}'      # Same.
 perl -E 'open FH, ">", "file"; say FH "123"; exit 1'  # File closed and contains "123"
 
+# Perl signal handling (eval,die,exit)
+# Avoid using $SIG{__DIE__}
+https://www.perlmonks.org/?node_id=1173708
+perl -E '$SIG{__DIE__} = sub { say "caught die!" }; die; say $@; say "here"'
+
 
 #############################################################
 ## Perl Symbol Table
