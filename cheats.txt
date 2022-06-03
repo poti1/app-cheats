@@ -8293,6 +8293,10 @@ perl -E 'open FH, ">", "file"; say FH "123"; exit 1'  # File closed and contains
 https://www.perlmonks.org/?node_id=1173708
 perl -E '$SIG{__DIE__} = sub { say "caught die!" }; die; say $@; say "here"'
 
+# Perl signal handling (eval,die,exit)
+# Catch exit command.
+perl -E 'BEGIN{ *CORE::GLOBAL::exit = sub(;$){die "EXIT_OVERRIDE: @_\n"} } eval { exit 1 }; print "caught error: $@" if $@; say "here"; exit 0'
+
 
 #############################################################
 ## Perl Symbol Table
