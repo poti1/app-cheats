@@ -8297,6 +8297,16 @@ perl -E '$SIG{__DIE__} = sub { say "caught die!" }; die; say $@; say "here"'
 # Catch exit command.
 perl -E 'BEGIN{ *CORE::GLOBAL::exit = sub(;$){die "EXIT_OVERRIDE: @_\n"} } eval { exit 1 }; print "caught error: $@" if $@; say "here"; exit 0'
 
+# Perl signal handling (eval,die,exit)
+# exit overrite snippet.
+our $EXIT_OVERRIDE = 1;
+BEGIN {
+    *CORE::GLOBAL::exit = sub {
+       die "EXIT_OVERRIDE: @_\n" if $EXIT_OVERRIDE;
+       CORE::exit(@_);
+    };
+}
+
 
 #############################################################
 ## Perl Symbol Table
