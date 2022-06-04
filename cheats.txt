@@ -8298,13 +8298,17 @@ perl -E '$SIG{__DIE__} = sub { say "caught die!" }; die; say $@; say "here"'
 perl -E 'BEGIN{ *CORE::GLOBAL::exit = sub(;$){die "EXIT_OVERRIDE: @_\n"} } eval { exit 1 }; print "caught error: $@" if $@; say "here"; exit 0'
 
 # Perl signal handling (eval,die,exit)
-# exit overrite snippet.
+# exit overrite snippet. Plus capture all signals.
 our $EXIT_OVERRIDE = 1;
 BEGIN {
     *CORE::GLOBAL::exit = sub {
-       die "EXIT_OVERRIDE: @_\n" if $EXIT_OVERRIDE;
+       die "EXIT_OVERRIDE:Caught: @_\n" if $EXIT_OVERRIDE;
        CORE::exit(@_);
     };
+}
+local %SIG = %SIG;
+for my $Key ( sort keys %SIG) {
+   $SIG{$Key} = sub { exit $Key };
 }
 
 
