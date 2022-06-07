@@ -8331,17 +8331,25 @@ perl -E 'BEGIN{ *CORE::GLOBAL::exit = sub(;$){die "EXIT_OVERRIDE: @_\n"} } eval 
 
 # Perl signal handling (eval,die,exit)
 # exit overrite snippet. Plus capture all signals.
-our $EXIT_OVERRIDE = 1;
+# exit overrite snippet. Plus capture all signals.
+our $ExitOverride = 1;
 BEGIN {
     *CORE::GLOBAL::exit = sub {
-       die "EXIT_OVERRIDE:Caught: @_\n" if $EXIT_OVERRIDE;
-       CORE::exit(@_);
+        die "EXIT_OVERRIDE:Caught: @_\n" if $ExitOverride;
+        CORE::exit(@_);
     };
 }
 local %SIG = %SIG;
-for my $Key ( sort keys %SIG) {
-   $SIG{$Key} = sub { exit $Key };
+KEY:
+for my $Key ( sort keys %SIG ) {
+    next KEY if $Key eq 'CHLD';
+    next KEY if $Key eq 'CLD';
+    $SIG{$Key} = sub { die $Key };    ## no critic
 }
+#
+# RUN CODE HERE
+#
+$ExitOverride = 0;
 
 
 #############################################################
