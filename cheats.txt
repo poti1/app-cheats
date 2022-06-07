@@ -3008,6 +3008,29 @@ rsnapshot -t weekly
 # Copy/Sync entire directories
 rsync -avh FROM TO
 
+# Show what rsync would do with actually doing it.
+rsync -avh --dry-run FROM TO
+
+# Copy/Sync entire directories (OnePlus Backup)
+time rsync \
+   -ah \
+   --info="progress2" \
+   --stats \
+   --delete \
+   --delete-delay \
+   --delete-excluded \
+   --delay-updates \
+   --exclude=".tubemate/" \
+   --exclude="Android/" \
+   --exclude="Alarms/" \
+   --exclude="APK Extractor/" \
+   --exclude="Audiobooks/" \
+   --exclude="n7player/" \
+   --exclude="Movies/" \
+   --exclude="Pictures/.thumbnails/" \
+   --log-file="$new.log" \
+   "$src/" "$new/"
+
 # Copy/Sync entire directories including the folder structure
 rsync -R FROM TO
 
