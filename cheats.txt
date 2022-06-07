@@ -8427,6 +8427,19 @@ perl -le "@a=(4,10,20); sub add{ my ($n) = @_; print qq(\nAdding: $n); if($n < $
 
 
 #############################################################
+## Perl Functions - system
+#############################################################
+
+# Using bash inside of a perl system call (plus source)
+# Source some reason is NOT recursive!
+system (
+   "bash",
+   "-c",
+   "source $ENV{HOME}/my/.bashrc; $command",
+);
+
+
+#############################################################
 ## Perl Functions - vec
 #############################################################
 
