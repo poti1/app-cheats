@@ -8344,6 +8344,8 @@ KEY:
 for my $Key ( sort keys %SIG ) {
     next KEY if $Key eq 'CHLD';
     next KEY if $Key eq 'CLD';
+    next KEY if $Key eq '__DIE__';
+    next KEY if $Key eq '__WARN__';
     $SIG{$Key} = sub { die $Key };    ## no critic
 }
 #
