@@ -9699,6 +9699,16 @@ perl -l -MText::CSV_XS -e '$csv=Text::CSV_XS->new; open FH, "a.csv"; $a=$csv->ge
 
 
 #############################################################
+## Perl Modules - Text::ParseWords
+#############################################################
+
+# Split a line by a character while honoring quotes
+# and backslashes. (perl)
+use Text::ParseWords qw/ parse_line /;
+parse_line( '/', 1, $string );
+
+
+#############################################################
 ## Perl Modules - Tie::Array
 #############################################################
 
