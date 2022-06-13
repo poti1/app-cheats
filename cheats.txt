@@ -2530,6 +2530,10 @@ find . -name "*.h" -printf '%h\n'
 find . -name "*.h" -exec dirname {} ';'
 find . -name "*.h" -exec dirname {} \;
 
+# Using a variable to define the find string.
+n="-name *.pm";   find . $n     # Works.
+n="-name '*.pm'"; find . $n     # Looks correct, but does NOT work!
+
 # Find all git directories from current location
 find . -name .git -type d | xargs -I{}  readlink -f {} | perl -ple 's#^/\w+##; s#/\.git$##'
 
@@ -4824,10 +4828,10 @@ git clean -fd
 # Remove untracked files and directories (úsing not standard ignore rules)
 git clean -xfd
 
-# Stop tracking a certain file (will NOT remove file)
+# Stop tracking a certain file (will NOT remove file, forget)
 git rm --cached file1
 
-# Stop tracking a certain directory (will NOT remove directory)
+# Stop tracking a certain directory (will NOT remove directory, forget)
 git rm --cached -r directory1
 
 # fatal: Pathspec 'dir1' is in submodule 'dir2'
