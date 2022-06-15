@@ -4086,6 +4086,14 @@ lsb_release -cs
 
 
 #############################################################
+# Linux Startup
+#############################################################
+
+# Prevent a program from starting on Ubuntu during boot.
+# Click on “Startup Application” and launch Startup Program Preference.
+
+
+#############################################################
 ## Linux Swap Memory
 #############################################################
 
