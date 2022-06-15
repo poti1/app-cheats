@@ -8770,11 +8770,16 @@ perl -Mthreads -le '@t=map threads->create(sub{print "Im #$_"}), 1..10; $_->join
 # Uses a shared variable between threads
 perl -Mthreads -Mthreads::shared -le '$sum=0; share($sum); @t=map threads->create(sub{$sum += $_}), 1..10; print $_->join for @t; print "sum: $sum"'
 
-# async is an alias for threads->create
-perl -lMthreads -le '@t=map async(sub{print $_}), 1..3; $_->join for @t'
-
-# threads->new is an alias for threads->create
+# Aliases for threads->create.
 perl -lMthreads -le '@t=map threads->new(sub{print $_}), 1..3; $_->join for @t'
+perl -lMthreads -le '@t=map async(sub{print $_}), 1..3; $_->join for @t'
+perl -lMthreads -le '@t=map threads->new(sub{print $_}), 1..3; $_->join for @t'
+
+# If using a coderef, you must use threads->create.
+perl -lMthreads -le '$sub = sub{ print "123" }; @t=map threads->new( $sub ), 1..3; $_->join for @t'
+
+# If using a coderef, you must use threads->create (with arguments).
+perl -lMthreads -le '$sub = sub{ print "@_" }; @t=map threads->new( $sub, $_ ), 1..3; $_->join for @t'
 
 # Shared and non shared variables example
 perl -lMthreads -Mthreads::shared -le '$a=$b=1; share($a); async(sub{$a++; $b++})->join; print "a=$a, b=$b"'
