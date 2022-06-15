@@ -1810,6 +1810,54 @@ docker compose logs -f --tail 200
 
 
 #############################################################
+## FTP Server/Client
+#############################################################
+
+# Create an ftp server on ubuntu.
+https://linuxconfig.org/how-to-setup-and-use-ftp-server-in-ubuntu-linux
+# 1. Install
+sudo apt install vsftpd
+#
+# 2. backup original /etc/vsftpd.conf
+#
+# 3. Update /etc/vsftpd.conf
+write_enable=YES                 # Dont forget THIS!
+chroot_local_user=YES
+pasv_enable=Yes
+pasv_min_port=10000
+pasv_max_port=10100
+allow_writeable_chroot=YES
+#
+# 4. Allow ftp through firewall.
+#
+# 5. Restart ftp daemon.
+sudo systemctl restart vsftpd
+#
+# 6. Create a dedicated ftp user account.
+sudo useradd -m ftpuser
+sudo passwd ftpuser
+#
+# 7. Append group to current user
+sudo usermod -a -G ftpuser $USER
+#
+# 8. Apply new group.
+sudo su $USER
+
+# Test ftp client on ubuntu.
+sudo apt install ftp
+ftp://127.0.0.1/test.html
+
+# Check firewall rules (ubuntu).
+sudo ufw status verbose
+
+# Enable firewall (ubuntu).
+sudo ufw enable
+
+# Allow ftp through firewall.
+sudo ufw allow from any to any port 20,21,10000:10100 proto tcp
+
+
+#############################################################
 ## GCC
 #############################################################
 
@@ -3634,6 +3682,9 @@ sudo usermod -d /home4/xbe4092 -m xbe4092
 # Current user would need to log out and in again
 # for changes to take effect.
 sudo usermod -a -G GROUP_NAME USER
+#
+# A way to temporarily apply new group.
+sudo su $USER
 
 
 #############################################################
