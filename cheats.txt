@@ -1822,6 +1822,8 @@ sudo apt install vsftpd
 #
 # 3. Update /etc/vsftpd.conf
 write_enable=YES                 # Dont forget THIS!
+local_root=/home/$USER           # Not needed?
+local_umask=002
 chroot_local_user=YES
 pasv_enable=Yes
 pasv_min_port=10000
