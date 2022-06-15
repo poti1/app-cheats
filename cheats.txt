@@ -12720,6 +12720,13 @@ set nofoldenable
 # Run command in every buffer (Vim,multiple screens)
 :bufdo! %s/ABC/123/g
 
+" Saving .vimrc should reload the buffer.
+" Example of running multiple vim commands.
+augroup save_vimrc
+   autocmd!
+   autocmd bufwritepost $MYVIMRC source $MYVIMRC | bufdo call RemovePerlSyntax()
+augroup END
+
 # Close all other windows (Vim,multiple screens)
 :on
 :on!
