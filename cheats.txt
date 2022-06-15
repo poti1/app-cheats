@@ -4432,6 +4432,20 @@ if [[ ! -z $msg ]]; then echo "A"; fi
 [ -t 0 ] && echo "A"
 cat file | [ -t 0 ] && echo "A"
 
+# Read from either PIPE or from standard input STDIN (in Bash. 0 is STDIN)
+if [ -t 0 ]; then    # RIGHT side
+    list=( "$@" )
+else                 # LEFT side (PIPE)
+    list=($(cat -))
+fi
+
+# Detect if piped result.
+local piped
+# Pipe (from grep).
+if [ -p /dev/stdin ]; then
+    piped=($(cat -))
+fi
+
 
 #############################################################
 ## Bash - Functions
