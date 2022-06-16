@@ -4272,6 +4272,7 @@ figlet "svn update" -f slant -r -w 60
 #############################################################
 
 # Example of using autocompletion (tab)
+/usr/share/bash-completion/completions/perltidy
 /usr/share/bash-completion/completions/perl
 /usr/share/bash-completion/completions/ip
 
