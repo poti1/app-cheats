@@ -8446,6 +8446,11 @@ for my $Key ( sort keys %SIG ) {
 #
 $ExitOverride = 0;
 
+# Perl signal handling (eval,die,__DIE__)
+# Capture STDOUT and STDERR.
+# Catch die and throw to STDOUT.
+perl -MApp::Pod -E '{ local *STDOUT; open STDOUT, ">", \$out or die $!; local *STDERR; open STDERR, ">>", \$err or die $!; print "print-out"; print STDERR "print-err"; local $SIG{__DIE__} = sub{ my $m = shift; chomp $m; print STDERR "<$m>" }; eval{die "die\n"}; print "print-out2" } say "\n[$out][$err]\n"' ojo2
+
 
 #############################################################
 ## Perl Symbol Table
