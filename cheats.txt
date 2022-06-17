@@ -8450,6 +8450,11 @@ $ExitOverride = 0;
 # Capture STDOUT and STDERR.
 # Catch die and throw to STDOUT.
 perl -MApp::Pod -E '{ local *STDOUT; open STDOUT, ">", \$out or die $!; local *STDERR; open STDERR, ">>", \$err or die $!; print "print-out"; print STDERR "print-err"; local $SIG{__DIE__} = sub{ my $m = shift; chomp $m; print STDERR "<$m>" }; eval{die "die\n"}; print "print-out2" } say "\n[$out][$err]\n"' ojo2
+#
+# Use $@ to capture eval error.
+# Better than SIG{__DIE__} since sub calls may except an die
+# to stop something, like Pod::Simple, which is used by Pod::LOL).
+perl -Ilib -MApp::Pod -E '{ local *STDOUT; open STDOUT, ">", \$out or die $!; local *STDERR; open STDERR, ">>", \$err or die $!; print "print-out"; print STDERR "print-err"; eval{die "die\n"}; print STDERR "<$@>" if $@; print "print-out2" } say "\n[$out][$err]\n"' ojo2
 
 
 #############################################################
@@ -9481,6 +9486,10 @@ package Mojo::File {
       $self->spurt( $pretty_json );
    }
 }
+
+# Find a path given a class name.
+# Alternative to "perldoc -l class".
+perl -MMojo::File=path -MMojo::Util=class_to_path -E '$p = class_to_path "Mojo::UserAgent"; for ( @INC ) { $p2 = path($_,$p); if(-e $p2){ say $p2; lat } }'
 
 
 #############################################################
