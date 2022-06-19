@@ -5290,6 +5290,10 @@ gpg -k
 # Decrypt a PGP signed file.
 gpg -d ~/.pause
 
+# Cache password in agent.
+# Some reason this fixed caching.
+gpgconf --kill gpg-agent
+
 
 #############################################################
 ## HTML Attribute - href
