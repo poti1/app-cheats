@@ -5273,6 +5273,19 @@ git pull origin master
 
 
 #############################################################
+## GPG Encryption (PGP Key)
+#############################################################
+
+# Generate a PGP key
+gpg --gen-key
+
+# Create a PGP signed file
+gpg -ea -r "YOUR_NAME" > $HOME/.pause
+user USER
+password Pas$word
+
+
+#############################################################
 ## HTML Attribute - href
 #############################################################
 
