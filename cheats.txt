@@ -5284,6 +5284,12 @@ gpg -ea -r "YOUR_NAME" > $HOME/.pause
 user USER
 password Pas$word
 
+# Show your PGP keys (list)
+gpg -k
+
+# Decrypt a PGP signed file.
+gpg -d ~/.pause
+
 
 #############################################################
 ## HTML Attribute - href
@@ -8336,6 +8342,18 @@ perl -le '$mem="ABC"; print for unpack "C*",$mem'
 
 # Data selection. alternative to substr. Use to column splitting when spaces do not necessary delimit
 perl -le '($what,$where,$howmuch)=@ARGV; print unpack "x$where A$howmuch", $what' "[abc def][hij][klm]" 1 7
+
+
+#############################################################
+## Perl PAUSE Account
+#############################################################
+
+# Upload to pause server without a browser.
+# 1. Need to file create a .pause file
+# 2. Install required modules:
+cpanm CPAN::Uploader
+cpanm Config::Identity
+cpan-upload my_module.tar.gz
 
 
 #############################################################
