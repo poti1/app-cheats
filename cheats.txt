@@ -5294,6 +5294,16 @@ gpg -d ~/.pause
 # Some reason this fixed caching.
 gpgconf --kill gpg-agent
 
+# Share GPG keys (export from one, import in another machine).
+gpg --export-secret-key -a > secretkey.asc
+gpg --import secretkey.asc
+
+# Warning: It is NOT certain that the key belongs to the person named.
+gpg --edit-ḱeys YOUR_NAME
+trust
+5
+yes
+
 
 #############################################################
 ## HTML Attribute - href
