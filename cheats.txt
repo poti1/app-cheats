@@ -3303,6 +3303,9 @@ ls -1d [Ee]* | sort -f
 # View the number of hard links to a file or folder
 stat -c %h /run
 
+# View the group id (GID) of a file.
+stat -c %g ~/.vimrc
+
 
 #############################################################
 ## Linux Commands - stty
