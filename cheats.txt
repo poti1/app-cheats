@@ -7972,6 +7972,43 @@ perl -MBenchmark=cmpthese -E 'my @n = 1..10000; cmpthese(10000, {string => sub{"
 # # Same as this:
 # cmpthese(100_000_000, $ways);
 
+# Example of benchmarking code in perl.
+# Comparing normal substitution to similar one, but with an eval (/e).
+# use warnings;
+# use strict;
+# use Benchmark qw(cmpthese);
+#
+# my $data=<<HERE;
+# Data1
+# Data2
+# START
+# skip
+# ok1
+# ok2
+# STOP
+# Data3
+# Data4
+# START
+# ok3
+# ok4
+# STOP
+# Data5
+# HERE
+#
+# my $ways = {
+#     normal => sub {
+#         $data =~ s{ ( ^ \s* START \n skip .+? STOP \s* ) }{}xmsgr,
+#     },
+#     eval => sub {
+#         $data =~ s{ ( ^ \s* START .*? STOP \s* \n ) }{
+#             local $_ = $1;
+#             /skip/ ? "" : $_;
+#         }xmsger,
+#     },
+# };
+#
+# cmpthese( 3_000_000, $ways);
+
 
 #############################################################
 ## Perl Bugs
@@ -8132,7 +8169,7 @@ cat /etc/passwd| perl -F: -ane 'print "@F"'
 # Print first argument (with debugging)
 echo "abc" | perl -MO=Deparse -le '<> =~ /(b)/; print $1'
 
-# Print first argument if match found 
+# Print first argument if match found
 echo "abc" | perl -lne 'print $1 if /(.b.)/'
 
 # Print first argument (with debugging. same but better)
@@ -8144,10 +8181,10 @@ echo "abc-def-hij" | perl -lne '@a=/\w+/g; print "@a[2,1,0]"'
 # Join all elements found with a different delimeter
 echo "abc-def-hij" | perl -lne '@a=/\w+/g; $"=","; print "@a[2,1,0]"'
 
-# Extract columns from PDF like format 
+# Extract columns from PDF like format
 cat data3.txt | perl -lpe 's/(?<=\()\s+//' | perl -alne 'print if @F == 3' | perl -lpe 's/\s+/,/g' > data3.csv
 
-# Sort columns by field 5 (who) 
+# Sort columns by field 5 (who)
 who | perl -le 'chomp(@a=<>); print for map{$_->[0]} sort{$a->[1] cmp $b->[1]} map{[$_,(split " ")[5]]} @a'
 who |sort -k 5
 
@@ -8893,7 +8930,7 @@ perl -Mre=Debug,PARSE -e 'print if "aaa:bbb" =~ /\w+/'
 # Debug a regular expression (with some color)
 perl -Mre=debugcolor -le 'print "abc:def-hij"=~/\w+/'
 
-# Check if certain words are in order in a file 
+# Check if certain words are in order in a file
 echo "line1 line2" | perl -0777nlE 'INIT{-t and die; $a=join".*?",map{/\S+/g}<STDIN>; $r=qr/$a/s} say "$ARGV - " . (/$r/?"PASS":"FAIL") ' f1 f2
 echo "line1 line4" | perl -Mre=eval -0777ne 'INIT{-t and die; $a=join "",map qq[ (?{print"\\nTrying $_ - "}) (.*?(??{"$_"}) (?{print"pass"})) ],map{/\S+/g}<STDIN>; $r=qr/^$a/sx; print "\n\$r=qr$r\n\n"} print "\n# $ARGV"; print "\n".(/$r/?"PASS":"FAIL")."\n\n"' f1 f2
 echo "line1 line4" | perl -Mre=eval -0777ne 'INIT{-t and die; $a=join "",map qq[ (?{print"\\nTrying $_ - "}) (.*?(??{"$_"}) (?{print"pass"})) ],map{/\S+/g}<STDIN>; $r=qr/^$a/sx} print "\n# $ARGV"; print "\n".(/$r/?"PASS":"FAIL")."\n\n"' f1 f2
@@ -11964,7 +12001,7 @@ chrome://flags/#enable-webrtc-pipewire-capturer
 ## VBA Regex
 #############################################################
 
-# Regex for validating input on database 
+# Regex for validating input on database
 cat data | add_color -r '(?x) ^ (?! ^( (ALLENGINES|ASAPPLICABLE|PW\d+\w+-?\w+)(,|$))+ ((Except:)? (\d{6}-\d{6}|\d{6}) (,|$) )* $ ) .*'
 
 
