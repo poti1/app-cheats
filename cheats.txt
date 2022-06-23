@@ -11508,6 +11508,10 @@ sudo systemctl start selenium.service
 curl -X POST http://localhost:4444/wd/hub/session -d '{ "desiredCapabilities": { "browserName": "chrome" } }'
 curl -X POST http://localhost:4444/wd/hub/session -d '{ "desiredCapabilities": { "browserName": "firefox" } }'
 
+# Type the Enter/Return key in Selenium.
+perl -C -E 'say "\N{U+E007}"'   
+perl -C -E 'say "\x{E007}"'     
+
 
 #############################################################
 ## SQLite3 Database
