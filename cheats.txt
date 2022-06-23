@@ -9554,6 +9554,20 @@ perl -Mojo -E 'my $dom = x(q(<ul class="clss"> <li>item1</li> <p>para</p> <li>it
 perl -Mojo -E 'my $dom = x(q(<ul class="clss"> <p>para1</p> <li>item1</li> <p>para2</p> <li>item2</li> </ul>)); say $dom->at("ul > :nth-of-type(2)")'
 <p>para2</p>
 
+# Xml to struct in perl
+#
++ #!/bin/env perl
++ use feature 'say';
++ use ojo;
++ my $x = x f( shift )->slurp;
++ my $contact = $x->at( "contact" );
++ my $struct = {
++     email      => $contact->at( "workplaceemailuri" )->text,
++     first_name => $contact->at( "givenname" )->text,
++     last_name  => $contact->at( "familyname" )->text,
++ };
++ say r $struct;
+
 
 #############################################################
 ## Perl Modules - Mojo::File
