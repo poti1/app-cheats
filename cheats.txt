@@ -8908,7 +8908,7 @@ perltidy my_file
 
 # Perltidy configuration file
 vi .perltidyrc
--i=3 -mbl=2 -pt=0 -b -bext='/'
+-mbl=2 -pt=0 -b -bext='/' -blbs=1 -bom -bbb -nbl
 
 # Tell perltidy to ignore a line
 <STDIN>;    ## no critic
@@ -8916,6 +8916,9 @@ vi .perltidyrc
 # html
 sudo apt-get install tidy
 sudo apt-get install libhtml-tidy-perl    # Perl library
+
+# View current options when doing perltidy
+perltidy my_file -dop    # --dump-options
 
 
 #############################################################
