@@ -9186,6 +9186,13 @@ perl -MEmail::Outlook::Message -le 'print Email::Outlook::Message->new(shift)->t
 # Example of using Encode to show string in different supported encodings (broken).
 perl -C -MEncode -E '$s1="Ue: Ü"; $s2="Euro: \N{EURO SIGN}"; for ( encodings ) { printf "%-15s: [%-7s] [%s]\n", $_, encode($_,$s1), encode($_,$s2) }'
 
+# Why use Encode?
+perl -E 'say "\xe1"'    # �
+perl -C -E 'say "\xe1"' # á
+perl -MEncode -E 'say encode "UTF-8", "\xe1"' # á
+perl -MEncode -E 'use open ":std", ":encoding(UTF-8)"; say "\xe1"' # á
+perl -MEncode -E 'use open qw(:std :utf8); say "\xe1"' # á
+
 
 #############################################################
 ## Perl Modules - Excel::Writer::XLSX
@@ -10498,6 +10505,23 @@ perl -MTryCatch -lE 'sub try_me{ try{1/0}catch{say "Caught [$@]"; return "AAA"};
 perl -Mcharnames=:full -CO -MUnicode::Normalize -E 'say charnames::viacode ord for split //, NFD "\N{LATIN CAPITAL LETTER A WITH ACUTE}"'
 # LATIN CAPITAL LETTER A
 # COMBINING ACUTE ACCENT
+
+# Get grapheme clusters.
+perl -MEncode -MUnicode::Normalize -E 'use open qw(:std :utf8); say for map{ /(\X)/g } NFD "\x{61}\x{301}"x2'á
+á
+perl -MEncode -MUnicode::Normalize -E 'use open qw(:std :utf8); say for map{ /(.)/g } NFD "\x{61}\x{301}"x2' a
+ ́
+a
+ ́
+
+# Get individual decomposed characters.
+perl -MEncode -MUnicode::Normalize -E 'use open qw(:std :utf8); say ord for map{ /(.)/g } NFD "\x{61}\x{301}"x2'
+97
+769
+97
+769
+# LATIN SMALL LETTER A   U+61  0x61   97
+# COMBINING ACUTE ACCENT U+301 0x301 769
 
 
 #############################################################
