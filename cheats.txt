@@ -10526,6 +10526,16 @@ perl -MEncode -MUnicode::Normalize -E 'use open qw(:std :utf8); say ord for map{
 # LATIN SMALL LETTER A   U+61  0x61   97
 # COMBINING ACUTE ACCENT U+301 0x301 769
 
+# Use unpack to get unicode codepoints.
+perl -MEncode -MUnicode::Normalize -E 'use open qw(:std :utf8); say for unpack "W*",NFD "\x{61}\x{301}"x2'
+97
+769
+97
+769
+perl -MEncode -MUnicode::Normalize -E 'use open qw(:std :utf8); say for unpack "W*",NFC "\x{61}\x{301}"x2'
+225
+225
+
 
 #############################################################
 ## Perl Modules - XML::LibXML
