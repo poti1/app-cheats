@@ -9321,6 +9321,9 @@ perl -MHook::LexWrap -le 'wrap 'abc', pre => sub{print "pre:  [@_[0..$#_-1]]"}, 
 # Wrap a subroutine and see the input and output. modify results
 perl -MHook::LexWrap -le 'wrap 'abc', post => sub{$_[-1] = 8}; sub abc{my($a,$b)=@_; $a+$b} print abc 2,3'
 
+# Wrap and unwrap all class functions. (idea)
+perl -MModule::Functions=get_full_functions -MHook::LexWrap -MB -E '$class = "MyClass"; my @unwrap = map wrap($_, pre => sub{ my @c=caller; say "[@c] " . B::svref_2object(__SUB__)->GV->NAME; my @c2 = CORE::caller; say "@c"; }), sort {$a cmp $b} map { "$class\::$_" } grep { UNIVERSAL::can("$class", $_) } grep { /[a-z]/ } get_full_functions $class; $_->() for@unwrap; say $class->abc("from main", "from main2");'
+
 
 #############################################################
 ## Perl Modules - HTML::Tree
