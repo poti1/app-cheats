@@ -9090,11 +9090,17 @@ perl -MData::Dumper -le '$Data::Dumper::Deparse=1; sub add{my($a,$b)=@_; $a+$b};
 perl -MData::Dumper -le '$Data::Dumper::Deparse=1; $add=sub{my($a,$b)=@_; $a+$b}; print Dumper $add'
 
 # Data Dumper subroutine template
-sub pr{
-   require Data::Dumper;
-   my $d = Data::Dumper->new([@_]);
-    $d->Terse(1)->Indent(1)->Sortkeys(1)->Purity(1);
-   print $d->Dump, "\n";
+sub _dumper {
+    require Data::Dumper;
+    my $data = Data::Dumper
+      ->new( [@_] )
+      ->Indent( 1 )
+      ->Sortkeys( 1 )
+      ->Terse( 1 )
+      ->Useqq( 1 )
+      ->Dump;
+    return $data if defined wantarray;
+    say $data;
 }
 
 
@@ -9529,6 +9535,29 @@ plugin 'AutoReload';
 
 
 #############################################################
+## Perl Modules - Mojo::Base
+#############################################################
+
+# Create accessor methods (like Mojo::Base::attr)
+sub _has {
+    no strict 'refs';
+    for my $attr ( @_ ) {
+        *$attr = sub {
+            return $_[0]{$attr} if @_ == 1;    # Get: return $self-<{$attr}
+            $_[0]{$attr} = $_[1];              # Set: $self->{$attr} = $val
+            $_[0];                             # return $self
+        };
+    }
+}
+_has qw(
+  path
+  lol
+  tree
+  class_is_path
+);
+
+
+#############################################################
 ## Perl Modules - Mojo::DOM
 #############################################################
 
@@ -9790,6 +9819,24 @@ perl -MPod::Usage=pod2usage -E "pod2usage(-input => `perldoc -l ojo`, -verbose =
 
 # Pull out a sectin of perl documentation and store it in a variable
 perl -MPod::Usage=pod2usage -E "open my $fh, '>', \my $out or die $!; pod2usage(-input => `perldoc -l ojo`, -verbose => 99, -sections => '.*/x', -output => $fh, exitval => 'NOEXIT'); say qq([$out])"
+
+
+#############################################################
+## Perl Modules - Role::Tiny
+#############################################################
+
+# Light alternative to Mojo::Base -role
+package My::Role;
+use Role::Tiny;
+sub foo { ... }
+sub bar { ... }
+around baz => sub { ... };
+#
+package My::Class;
+use Role::Tiny::With;
+# bar gets imported, but not foo
+with 'My::Role';
+sub foo { ... }
 
 
 #############################################################
