@@ -4339,6 +4339,9 @@ _otrs_module_install__tab(){
 }
 complete -F _otrs_module_install__tab otrs_module_install
 
+# Manually run bash tab completion
+compgen -W "abc abdd afg" -- ab
+
 
 #############################################################
 ## Bash - Command Info
