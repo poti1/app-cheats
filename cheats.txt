@@ -4907,6 +4907,9 @@ git rm -r folder1
 # Revert untracked changes
 git checkout -- *
 
+# Checkout a single file form another branch,
+git checkout MY_BRANCH -- MY_FILE
+
 # Remove untracked files and directories
 git clean -fd
 
