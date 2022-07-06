@@ -8459,6 +8459,28 @@ perl -E '$c = "\e[31mHERE\e[0m"; $c =~ s&\p{PosixCntrl}&*&g; say $c'
 # \p{PosixCntrl}  - ASCII-range Unicode.
 # \p{XPosixCntrl} - Full-range Unicode.
 
+# Named captures affect %+ and %+, but ALSO $1,$2
+perl -Mojo -E '"abc" =~ /(?<first>.)(?<second>.)(?<third>.)/; say r \%-; say r \%+; say "1:$1"; say "2:$2"; say "3:$3"'
+
+
+#############################################################
+## Perl Regular Expressions - Subpatterns
+#############################################################
+
+# Create a subpattern using:
+# (?(DEFINE)
+#   (?<name>pattern)
+# )
+# It is recommended that for this usage you put the DEFINE
+# block at the end of the pattern, and that you name any
+# subpatterns defined within it.
+#
+# Then use it like:
+# (?&name)
+#
+# Example:
+perl -E '"look mk" =~ / (l (?&same_char) )k \s (.)k (?(DEFINE) (?<same_char> (.) \g{-1} ) ) /x; say "got: 1:$1, 2:$2, 3:$3, 4:$4"'
+
 
 #############################################################
 ## Perl Regular Expressions - Verbs
