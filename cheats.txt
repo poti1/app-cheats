@@ -14017,6 +14017,9 @@ sudo apt install libxml2-utils
 # In the absence of a select attribute, the xsl:apply-templates instruction
 # processes all of the children of the current node, including text nodes
 
+# Run xslt on the command line
+xsltproc ToJson.xsl In.xml
+
 
 #############################################################
 ## XPath
