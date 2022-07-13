@@ -14034,6 +14034,20 @@ sudo apt install libxml2-utils
 # Run xslt on the command line
 xsltproc ToJson.xsl In.xml
 
+# XSLT Samples - Copy tag
+<?xml version="1.0"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output method="xml"/>
+    <xsl:template match="/">
+        <Parameters>
+            <Element>123</Element>
+            <xsl:copy>
+                <xsl:copy-of select="/MY_XPATH"/>
+            </xsl:copy>
+        </Parameters>
+    </xsl:template>
+</xsl:stylesheet>
+
 
 #############################################################
 ## XPath
