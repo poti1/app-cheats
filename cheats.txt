@@ -9507,6 +9507,7 @@ perl -Modern::Perl -e 'say Modern::Perl::validate_date(2022)'
 :5.34
 perl -Modern::Perl -e 'say Modern::Perl::validate_date()'
 :5.12
+perl                    -E 'sub abc ($n) {$n}'
 perl -Modern::Perl=2022 -e 'sub abc ($n) {$n}'
 perl -Modern::Perl      -e 'sub abc ($n) {$n}'
 Illegal character in prototype for main::abc : $n at -e line 1.
