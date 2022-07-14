@@ -9497,6 +9497,24 @@ perl -MMath::Factoring=factor -E "say for factor 666"
 
 
 #############################################################
+## Perl Modules - Modern::Perl
+#############################################################
+
+# Modern::Perl defaults to v5.12 (bug!?)
+perl -E 'say $^V'
+v5.36.0
+perl -Modern::Perl -e 'say Modern::Perl::validate_date(2022)'
+:5.34
+perl -Modern::Perl -e 'say Modern::Perl::validate_date()'
+:5.12
+perl -Modern::Perl=2022 -e 'sub abc ($n) {$n}'
+perl -Modern::Perl      -e 'sub abc ($n) {$n}'
+Illegal character in prototype for main::abc : $n at -e line 1.
+Global symbol "$n" requires explicit package name (did you forget to declare "my $n"?) at -e line 1.
+Execution of -e aborted due to compilation errors.
+
+
+#############################################################
 ## Perl Modules - Module::CoreList, corelist
 #############################################################
 
