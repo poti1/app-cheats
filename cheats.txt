@@ -9084,6 +9084,18 @@ perl -MCGI=:standard,:html3 -le 'print header(),start_html(),td(Tr [qw/red blue 
 
 
 #############################################################
+## Perl Modules - Class::Tiny
+#############################################################
+
+# Alternate to Mojo::Base has.
+perl -Mojo -E '{ package A; use Class::Tiny qw(name age color); sub new { bless {}, shift } } my $obj = A->new; $obj->name("bob"); $obj->color("blue"); say r $obj'
+bless( {
+  "color" => "blue",
+  "name" => "bob"
+}, 'A' )
+
+
+#############################################################
 ## Perl Modules - Crypt::PasswdMD5
 #############################################################
 
