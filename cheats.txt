@@ -14063,6 +14063,7 @@ sudo apt install libxml2-utils
 # processes all of the children of the current node, including text nodes
 
 # Run xslt on the command line
+# CANNOT handle version 2.0 (matches)
 xsltproc ToJson.xsl In.xml
 
 # XSLT Samples - Copy tag
@@ -14076,6 +14077,16 @@ xsltproc ToJson.xsl In.xml
                 <xsl:copy-of select="/MY_XPATH"/>
             </xsl:copy>
         </Parameters>
+    </xsl:template>
+</xsl:stylesheet>
+
+# XSLT Samples - variable, condition, match, negation
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:output method="xml"/>
+    <xsl:template match="/">
+        <xsl:vriable name="MyVar" select="MyXPath"></xsl:variable>
+        <xsl:if test="matches($My, '^HEY$')">MATCHES</xsl:if> 
+        <xsl:if test="not(matches($My, '^HEY$'))">NOT MATCHES</xsl:if> 
     </xsl:template>
 </xsl:stylesheet>
 
